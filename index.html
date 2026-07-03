@@ -218,6 +218,10 @@
 
     <section id="growth" class="section">
       <h2 class="section-title orange">성장 기록</h2>
+      <div class="growth-card" style="margin-bottom: 20px;">
+        <h3>✍️ 전체 소감</h3>
+        <div id="growth-essay" style="font-size: 13.5px; line-height: 1.75;"></div>
+      </div>
       <div class="growth">
         <div class="growth-card">
           <h3>🌱 배운 점</h3>
@@ -321,6 +325,11 @@ const PROJECTS = [
 ];
 
 const GROWTH = {
+  essay: [
+    "이번 학기 AICS 수업에서는 아이디어를 실제로 작동하는 결과물로 만들고 배포하는 전 과정을 경험할 수 있었다. Three.js로 3D 웹 게임을 만들고 깃허브 페이지로 배포하면서, 내 컴퓨터 안의 코드가 누구나 접속할 수 있는 웹 서비스가 되는 과정을 직접 겪어 보았다. 특히 웹캠 손 인식으로 조작하는 리듬 게임을 만들 때는 MediaPipe라는 AI 기술을 게임 조작에 직접 연결해 보면서, AI가 단순히 신기한 기술이 아니라 내 아이디어를 구현하는 도구가 될 수 있다는 것을 알게 되었다.",
+    "가장 기억에 남는 것은 강화학습으로 드론을 학습시킨 프로젝트다. 도망가는 목표를 쫓아가 잡도록 보상을 설계했는데, 보상 수치를 조금만 바꿔도 드론의 행동이 완전히 달라지는 것을 보면서 학습 알고리즘 자체보다 \"무엇을 보상할지 정하는 일\"이 더 중요하다는 것을 깨달았다. 학습이 느려서 병렬 처리를 적용해 3배 넘게 빠르게 만들기도 했고, 아무리 더 학습을 시켜도 성능이 오르지 않길래 원인을 파고들었더니 문제가 AI가 아니라 드론의 추력이라는 물리 설계에 있었다. 예상과 다른 결과가 나왔을 때 실험으로 원인을 하나씩 좁혀 가는 과정이 오히려 가장 큰 공부가 되었다.",
+    "아쉬운 점은 결과물을 만들 때마다 과정을 기록해 두지 않아 학기 말에 정리하는 데 시간이 걸렸다는 것이다. 다음에는 만드는 과정에서 스크린샷과 영상을 그때그때 남기고, 아직 배포하지 못한 게임들도 웹에 올려 누구나 바로 플레이할 수 있게 만드는 것이 목표다."
+  ],
   learned: [
     "Three.js로 3D 게임을 두 개 만들면서 게임 루프, 충돌 판정, 카메라 제어 같은 3D 게임의 기본 구조를 익혔다.",
     "MediaPipe 손 추적처럼 AI 기술을 게임 조작에 직접 연결하는 방법을 배웠다.",
@@ -373,6 +382,8 @@ document.getElementById("stat-repo").textContent = PROJECTS.filter(p => p.repo).
 const fill = (id, items) => {
   document.getElementById(id).innerHTML = items.map(t => `<li>${t}</li>`).join("");
 };
+document.getElementById("growth-essay").innerHTML =
+  GROWTH.essay.map(p => `<p style="margin-bottom:10px">${p}</p>`).join("");
 fill("growth-learned", GROWTH.learned);
 fill("growth-regret", GROWTH.regret);
 fill("growth-next", GROWTH.next);
