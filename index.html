@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AICS 포트폴리오 대시보드</title>
+<style>
+  :root {
+    --navy: #16233f;
+    --navy-2: #1f3157;
+    --blue: #2e63e7;
+    --blue-soft: #eaf0fe;
+    --orange: #f0762b;
+    --text: #24303f;
+    --text-sub: #6b7789;
+    --line: #e4e9f1;
+    --bg: #f5f7fb;
+    --card: #ffffff;
+    --radius: 14px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.55;
+  }
+  a { color: inherit; text-decoration: none; }
+
+  /* ── 레이아웃 ───────────────────────────── */
+  .layout { display: flex; min-height: 100vh; }
+
+  .sidebar {
+    width: 224px;
+    flex-shrink: 0;
+    background: var(--navy);
+    color: #fff;
+    padding: 28px 18px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .sidebar .logo { font-size: 19px; font-weight: 800; letter-spacing: -0.3px; }
+  .sidebar .logo small { display: block; font-size: 12px; font-weight: 500; color: #9fb0cc; margin-top: 4px; }
+  .nav { margin-top: 34px; display: flex; flex-direction: column; gap: 6px; }
+  .nav a {
+    padding: 11px 14px;
+    border-radius: 10px;
+    font-size: 14.5px;
+    font-weight: 600;
+    color: #c3cede;
+    transition: background .15s, color .15s;
+  }
+  .nav a.active, .nav a:hover { background: var(--navy-2); color: #fff; }
+  .sidebar .foot { margin-top: auto; font-size: 11.5px; color: #7e8fac; }
+
+  .main { flex: 1; padding: 36px 44px 72px; max-width: 1120px; }
+
+  /* ── 헤더 ───────────────────────────────── */
+  .page-head h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.4px; }
+  .page-head p { margin-top: 6px; color: var(--text-sub); font-size: 14.5px; }
+
+  .stats { display: flex; gap: 14px; margin: 26px 0 38px; flex-wrap: wrap; }
+  .stat {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px 22px;
+    min-width: 170px;
+    flex: 1;
+  }
+  .stat .label { font-size: 12.5px; font-weight: 600; color: var(--text-sub); }
+  .stat .value { font-size: 26px; font-weight: 800; margin-top: 4px; color: var(--navy); }
+  .stat .value em { font-style: normal; color: var(--blue); }
+  .stat .sub { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
+
+  /* ── 섹션 ───────────────────────────────── */
+  .section { margin-bottom: 56px; scroll-margin-top: 24px; }
+  .section-title {
+    font-size: 19px; font-weight: 800; letter-spacing: -0.3px;
+    display: flex; align-items: center; gap: 10px; margin-bottom: 18px;
+  }
+  .section-title::before {
+    content: ""; width: 5px; height: 20px; border-radius: 3px; background: var(--blue);
+  }
+  .section-title.orange::before { background: var(--orange); }
+
+  /* ── 프로젝트 카드 ──────────────────────── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .card:hover { transform: translateY(-3px); box-shadow: 0 10px 26px rgba(22,35,63,.10); }
+  .thumb {
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 54px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+  .thumb img, .thumb video { width: 100%; height: 100%; object-fit: cover; }
+  .card-body { padding: 18px 20px 20px; display: flex; flex-direction: column; flex: 1; }
+  .card-body h3 { font-size: 16.5px; font-weight: 800; letter-spacing: -0.2px; }
+  .card-body .desc { margin-top: 8px; font-size: 13.5px; color: var(--text-sub); flex: 1; }
+  .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+  .tag {
+    font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 20px;
+    background: var(--blue-soft); color: var(--blue);
+  }
+  .links { display: flex; gap: 8px; margin-top: 14px; }
+  .btn {
+    font-size: 12.5px; font-weight: 700; padding: 8px 14px; border-radius: 8px;
+    display: inline-flex; align-items: center; gap: 5px; transition: opacity .15s;
+  }
+  .btn:hover { opacity: .85; }
+  .btn.play { background: var(--blue); color: #fff; }
+  .btn.repo { background: #eef1f6; color: var(--text); }
+  .badge-local {
+    font-size: 11.5px; font-weight: 700; padding: 8px 14px; border-radius: 8px;
+    background: #fff4ec; color: var(--orange);
+  }
+
+  /* ── 성장 기록 ──────────────────────────── */
+  .growth { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+  .growth-card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 24px;
+  }
+  .growth-card h3 {
+    font-size: 15px; font-weight: 800; display: flex; align-items: center; gap: 8px;
+    margin-bottom: 12px;
+  }
+  .growth-card ul { list-style: none; }
+  .growth-card li {
+    font-size: 13.5px; color: var(--text); padding: 8px 0 8px 20px;
+    position: relative; border-bottom: 1px dashed var(--line);
+  }
+  .growth-card li:last-child { border-bottom: none; }
+  .growth-card li::before {
+    content: ""; position: absolute; left: 4px; top: 15px;
+    width: 6px; height: 6px; border-radius: 50%; background: var(--blue);
+  }
+  .growth-card.g2 li::before { background: var(--orange); }
+  .growth-card.g3 li::before { background: #22a06b; }
+
+  footer { text-align: center; font-size: 12px; color: var(--text-sub); padding: 20px 0 0; }
+
+  @media (max-width: 760px) {
+    .layout { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; position: static; padding: 20px; }
+    .nav { flex-direction: row; margin-top: 16px; }
+    .sidebar .foot { display: none; }
+    .main { padding: 24px 18px 60px; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <aside class="sidebar">
+    <div class="logo">
+      AICS 포트폴리오
+      <small>기말평가 · 웹 대시보드</small>
+    </div>
+    <nav class="nav">
+      <a href="#projects" class="active">프로젝트</a>
+      <a href="#growth">성장 기록</a>
+    </nav>
+    <div class="foot">
+      GitHub: <a href="https://github.com/jhan56936-ship-it" style="text-decoration:underline">jhan56936-ship-it</a>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <div class="page-head">
+      <h1>나의 AICS 결과물 대시보드</h1>
+      <p>지금까지 수업에서 만든 결과물을 한눈에 확인할 수 있게 정리했습니다.</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="label">결과물 개수</div>
+        <div class="value"><em id="stat-count">0</em>개</div>
+        <div class="sub" id="stat-goal"></div>
+      </div>
+      <div class="stat">
+        <div class="label">바로 플레이 가능</div>
+        <div class="value" id="stat-live">0</div>
+        <div class="sub">배포 링크 제공</div>
+      </div>
+      <div class="stat">
+        <div class="label">GitHub 공개</div>
+        <div class="value" id="stat-repo">0</div>
+        <div class="sub">코드 저장소 공개</div>
+      </div>
+    </div>
+
+    <section id="projects" class="section">
+      <h2 class="section-title">프로젝트</h2>
+      <div class="grid" id="grid"></div>
+    </section>
+
+    <section id="growth" class="section">
+      <h2 class="section-title orange">성장 기록</h2>
+      <div class="growth">
+        <div class="growth-card">
+          <h3>🌱 배운 점</h3>
+          <ul id="growth-learned"></ul>
+        </div>
+        <div class="growth-card g2">
+          <h3>🔍 아쉬운 점</h3>
+          <ul id="growth-regret"></ul>
+        </div>
+        <div class="growth-card g3">
+          <h3>🎯 다음 목표</h3>
+          <ul id="growth-next"></ul>
+        </div>
+      </div>
+    </section>
+
+    <footer>AICS 기말평가 제출용 포트폴리오 대시보드</footer>
+  </main>
+</div>
+
+<script>
+/* ============================================================
+   ▼▼▼ 여기만 수정하면 됩니다 ▼▼▼
+   결과물을 추가하려면 PROJECTS 배열에 항목을 복사해서 붙여넣으세요.
+   - title  : 결과물 제목 (필수)
+   - desc   : 한 줄 설명 1~2문장 (필수)
+   - emoji  : 썸네일에 표시할 이모지
+   - color  : 썸네일 배경 (CSS gradient)
+   - img    : 스크린샷 파일 경로 (예: "images/game.png") — 있으면 이모지 대신 표시
+   - video  : 플레이 영상 파일 경로 (예: "images/game.mp4") — 있으면 최우선 표시
+   - live   : 플레이/실행 링크 (없으면 null)
+   - repo   : GitHub 저장소 링크 (없으면 null)
+   - tags   : 사용 기술 태그
+   ============================================================ */
+const GOAL = 5; // 신규 학생 5개 이상 / 기존 팀프 학생이면 15로 변경
+
+const PROJECTS = [
+  {
+    title: "Beat Saber 3D — 핸드트래킹 리듬 게임",
+    desc: "웹캠으로 손을 인식(Google MediaPipe)해서 진짜 손 움직임으로 블록을 베는 3D 리듬 게임. 음악 파일을 올리면 박자를 분석해 악보를 자동 생성한다.",
+    emoji: "🎵",
+    color: "linear-gradient(135deg, #7b2ff7, #f107a3)",
+    img: null,
+    live: "https://jhan56936-ship-it.github.io/jhan56936.github.io/",
+    repo: "https://github.com/jhan56936-ship-it/jhan56936.github.io",
+    tags: ["Three.js", "MediaPipe", "손 추적", "Web Audio"]
+  },
+  {
+    title: "AI 아레나 — 3D 웨이브 슈터",
+    desc: "스크립트 AI 봇들과 싸우는 브라우저 3D 슈팅 게임. 러셔·슈터·탱크·스나이퍼·보머·실드 6종의 적 AI와 보스전, 웨이브를 깰 때마다 무기 강화를 선택한다.",
+    emoji: "🎯",
+    color: "linear-gradient(135deg, #16233f, #2e63e7)",
+    img: null,
+    video: "images/ai-arena.mp4",
+    live: null,
+    repo: null,
+    tags: ["Three.js", "적 AI 설계", "FPS/TPS", "Vite"]
+  },
+  {
+    title: "Seoul Explorer — 서울 픽셀아트 오픈월드",
+    desc: "120,000px 크기의 심리스 맵에서 경복궁·롯데월드타워 등 52개 서울 랜드마크를 탐험하는 2D 오픈월드 게임. 건물 내부는 절차적으로 생성된다.",
+    emoji: "🗼",
+    color: "linear-gradient(135deg, #0ba360, #3cba92)",
+    img: null,
+    live: null,
+    repo: "https://github.com/jhan56936-ship-it/seoul-explorer",
+    tags: ["TypeScript", "픽셀아트", "절차적 생성", "미니맵"]
+  },
+  {
+    title: "Flow.team MCP — AI 협업 도구 연결",
+    desc: "협업 툴 Flow.team을 Claude 같은 AI와 연결해 주는 MCP 서버. AI에게 말로 시켜서 일정·업무·프로젝트를 조회하고 만들 수 있다.",
+    emoji: "🤖",
+    color: "linear-gradient(135deg, #f0762b, #f7b733)",
+    img: null,
+    live: null,
+    repo: "https://github.com/jhan56936-ship-it/Flow.team-MCP",
+    tags: ["JavaScript", "MCP", "AI 에이전트", "API 연동"]
+  },
+  /* ▼ 5번째 결과물은 여기에 추가하세요 (아래 템플릿 복사 후 주석 해제)
+  {
+    title: "결과물 제목",
+    desc: "무엇을 만들었는지 1~2문장.",
+    emoji: "✨",
+    color: "linear-gradient(135deg, #667eea, #764ba2)",
+    img: null,          // 스크린샷이 있으면 "images/파일명.png"
+    live: null,         // 실행 링크
+    repo: null,         // GitHub 링크
+    tags: ["기술1", "기술2"]
+  },
+  */
+];
+
+const GROWTH = {
+  learned: [
+    "Three.js로 3D 게임을 두 개 만들면서 게임 루프, 충돌 판정, 카메라 제어 같은 3D 게임의 기본 구조를 익혔다.",
+    "MediaPipe 손 추적처럼 AI 기술을 게임 조작에 직접 연결하는 방법을 배웠다.",
+    "밸런스 수치를 한 파일(balance.js)에 모으는 등, 나중에 고치기 쉬운 코드 구조를 고민하게 됐다.",
+    "GitHub와 GitHub Pages로 내가 만든 것을 다른 사람이 바로 써 볼 수 있게 배포하는 과정을 경험했다."
+  ],
+  regret: [
+    "AI 아레나를 아직 GitHub에 올리지 못해서 링크로 바로 보여 줄 수 없는 점이 아쉽다.",
+    "결과물마다 플레이 영상이나 스크린샷을 그때그때 남겨 두지 않아 정리할 때 시간이 걸렸다."
+  ],
+  next: [
+    "AI 아레나를 GitHub Pages에 배포해서 누구나 플레이할 수 있게 만들기.",
+    "Seoul Explorer에 퀘스트/NPC를 추가해서 탐험 목표가 있는 게임으로 발전시키기."
+  ]
+};
+/* ▲▲▲ 수정 구역 끝 ▲▲▲ */
+
+// ── 렌더링 (아래는 수정할 필요 없음) ──────────────────────────
+const grid = document.getElementById("grid");
+PROJECTS.forEach(p => {
+  const card = document.createElement("article");
+  card.className = "card";
+  const thumb = p.video
+    ? `<div class="thumb"><video src="${p.video}" muted loop autoplay playsinline controls></video></div>`
+    : p.img
+    ? `<div class="thumb"><img src="${p.img}" alt="${p.title} 화면"></div>`
+    : `<div class="thumb" style="background:${p.color}">${p.emoji}</div>`;
+  const links = [
+    p.live ? `<a class="btn play" href="${p.live}" target="_blank">▶ 플레이</a>` : "",
+    p.repo ? `<a class="btn repo" href="${p.repo}" target="_blank">GitHub</a>` : "",
+    (!p.live && !p.repo) ? `<span class="badge-local">💻 로컬 프로젝트</span>` : ""
+  ].join("");
+  card.innerHTML = `
+    ${thumb}
+    <div class="card-body">
+      <h3>${p.title}</h3>
+      <p class="desc">${p.desc}</p>
+      <div class="tags">${p.tags.map(t => `<span class="tag">${t}</span>`).join("")}</div>
+      <div class="links">${links}</div>
+    </div>`;
+  grid.appendChild(card);
+});
+
+document.getElementById("stat-count").textContent = PROJECTS.length;
+document.getElementById("stat-goal").textContent = `목표 ${GOAL}개 이상`;
+document.getElementById("stat-live").textContent = PROJECTS.filter(p => p.live).length;
+document.getElementById("stat-repo").textContent = PROJECTS.filter(p => p.repo).length;
+
+const fill = (id, items) => {
+  document.getElementById(id).innerHTML = items.map(t => `<li>${t}</li>`).join("");
+};
+fill("growth-learned", GROWTH.learned);
+fill("growth-regret", GROWTH.regret);
+fill("growth-next", GROWTH.next);
+
+// 사이드바 활성 표시
+const navLinks = document.querySelectorAll(".nav a");
+navLinks.forEach(a => a.addEventListener("click", () => {
+  navLinks.forEach(x => x.classList.remove("active"));
+  a.classList.add("active");
+}));
+</script>
+</body>
+</html>
